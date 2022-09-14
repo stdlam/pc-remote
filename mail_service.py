@@ -1,132 +1,77 @@
-#import imaplib
-#import email
-#from email.header import decode_header
-#import webbrowser
-#import os
-
-# account credentials
-#username = "wanpy.tuananh@gmail.com"
-#password = "fkskxphdkusjeklv"
-# use your email provider's IMAP server, you can look for your provider's IMAP server on Google
-# or check this page: https://www.systoolsgroup.com/imap/
-# for office 365, it's this:
-#imap_server = "imap.gmail.com"
+import imaplib
+import smtplib
+import email
 
 
-# def clean(text):
-# clean text for creating a folder
-# return "".join(c if c.isalnum() else "_" for c in text)
+class MailService:
+    # account credentials
+    username = "example@gmail.com"
+    password = "password"
+    # use your email provider's IMAP server, you can look for your provider's IMAP server on Google
+    # or check this page: https://www.systoolsgroup.com/imap/
+    imap_host = "imap.gmail.com"
+    smpt_host = "smtp.gmail.com"
+    # create an IMAP4 class with SSL
+    mail = imaplib.IMAP4_SSL(imap_host)
 
+    def __init__(self) -> None:
+        pass
 
-# create an IMAP4 class with SSL
-#imap = imaplib.IMAP4_SSL(imap_server)
-# authenticate
-#imap.login(username, password)
+    def login(self, username, password):
+        # authenticate
+        self.mail.login(username, password)
 
+    def read_mail(self, box="INBOX"):
+        self.mail.select(box)
+        _, search_data = self.mail.search(None, '(SUBJECT "[G8RC]")')
 
-# close the connection and logout
-# imap.close()
-# imap.logout()
+        for num in search_data[0].split():
+            _, data = self.mail.fetch(num, "(RFC822)")
+            _, bytes_data = data[0]
+            # convert the byte data to message
+            email_message = email.message_from_bytes(bytes_data)
+            request_dict = {
+                "sender": email_message["from"],
+                "subject": email_message["subject"],
+            }
+            return request_dict
 
+    def send_mail(self, to_mail):
+        server = smtplib.SMTP(self.smpt_host, port=587)
+        server.ehlo()
+        server.starttls()
+        server.login(self.username, self.password)
+        server.sendmail(to_mail)
+        server.quit()
 
-# class MailService:
-#     def __init__(self) -> None:
-#         pass
+    def test_func():
+        print("test")
 
-# II.3.2.	Đọc mail yêu cầu điều khiển
-# def read_mail(box="INBOX"):
-#     status, messages = imap.select(box)
-#     # number of top emails to fetch
-#     N = 3
-#     # total number of emails
-#     messages = int(messages[0])
+    # viet chua xong
+    def parse_request(self, request_dict):
+        whitelist = ["sender@gmail.com"]
+        request_tree = {
+            "Test": "test_func",
+            "MAC": "get_mac",
+            "KEYLOGGER": {"HOOK": "get_hook", "PRINT": "print",},
+        }
+        if request_dict["sender"] in whitelist:
+            command = request_dict["subject"]
 
-#     for i in range(messages, messages-N, -1):
-#         # fetch the email message by ID
-#         res, msg = imap.fetch(str(i), "(RFC822)")
-#         for response in msg:
-#             if isinstance(response, tuple):
-#                 # parse a bytes email into a message object
-#                 msg = email.message_from_bytes(response[1])
-#                 # decode the email subject
-#                 subject, encoding = decode_header(msg["Subject"])[0]
-#                 if isinstance(subject, bytes):
-#                     # if it's a bytes, decode to str
-#                     subject = subject.decode(encoding)
-#                     if subject.find("[G8RC]") > -1:
-#                         # decode email sender
-#                         From, encoding = decode_header(msg.get("From"))[0]
-#                         if isinstance(From, bytes):
-#                             From = From.decode(encoding)
-#                         print("Subject:", subject)
-#                         print("From:", From)
+        response_dict = {"function": "", "params": "", "msg": "", "command": command}
+        return response_dict
 
-
-def read_mail(messages):
-    if isinstance(messages, tuple):
-        subject = messages[1]
-        if subject.find("[G8RC]") > -1:
-            From = messages[0]
-            print("Subject:", subject)
-            print("From:", From)
-
-
-def main():
-    msg = ("example@domain.com", "[G8RC] Hello")
-    read_mail(msg)
+    def respond(self, host_mail, mail):
+        response = self.parse_request(mail)
+        # goi ham build_mail_content
+        # response_mail = build_mail_content
+        self.send_mail(response_mail)
 
 
 if __name__ == "__main__":
-    main()
+    m = MailService()
+    m.login(m.username, m.password)
+    print(m.read_mail("INBOX"))
+    m.imap_host.close()
+    m.imap_host.logout()
 
-
-# def parse():
-#     # if the email message is multipart
-#     if msg.is_multipart():
-#         # iterate over email parts
-#         for part in msg.walk():
-#             # extract content type of email
-#             content_type = part.get_content_type()
-#             content_disposition = str(
-#                 part.get("Content-Disposition"))
-#             try:
-#                 # get the email body
-#                 body = part.get_payload(decode=True).decode()
-#             except:
-#                 pass
-#             if content_type == "text/plain" and "attachment" not in content_disposition:
-#                 # print text/plain emails and skip attachments
-#                 print(body)
-#             elif "attachment" in content_disposition:
-#                 # download attachment
-#                 filename = part.get_filename()
-#                 if filename:
-#                     folder_name = clean(subject)
-#                     if not os.path.isdir(folder_name):
-#                         # make a folder for this email (named after the subject)
-#                         os.mkdir(folder_name)
-#                     filepath = os.path.join(folder_name, filename)
-#                     # download attachment and save it
-#                     open(filepath, "wb").write(
-#                         part.get_payload(decode=True))
-#     else:
-#         # extract content type of email
-#         content_type = msg.get_content_type()
-#         # get the email body
-#         body = msg.get_payload(decode=True).decode()
-#         if content_type == "text/plain":
-#             # print only text email parts
-#             print(body)
-#     if content_type == "text/html":
-#         # if it's HTML, create a new HTML file and open it in browser
-#         folder_name = clean(subject)
-#         if not os.path.isdir(folder_name):
-#             # make a folder for this email (named after the subject)
-#             os.mkdir(folder_name)
-#         filename = "index.html"
-#         filepath = os.path.join(folder_name, filename)
-#         # write the file
-#         open(filepath, "w").write(body)
-#         # open in the default browser
-#         webbrowser.open(filepath)
-#     print("="*100)
