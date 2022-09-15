@@ -1,4 +1,4 @@
-import sys, os.path, winshell, win32com.client, ctypes
+import sys, os.path, winshell, win32com.client, ctypes, time
 from threading import Thread
 
 from services.maill_service import MailService
@@ -10,6 +10,7 @@ from services.screen import Screen
 from services.app import AppRunning
 from services.process import Process
 from services.html_generator import HTML_Generator
+from services.request_handle import RequestHandle
 
 from PyQt6.QtWidgets import (
     QApplication,
@@ -23,6 +24,8 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtGui import QIcon
 ms = None
 isConnected = False
+USERNAME = 'email.labdev@gmail.com'
+PASSWORD = 'twptcpnnaekacqwn'
 class Server(QWidget):
 
     def __init__(self):
@@ -52,7 +55,7 @@ class Server(QWidget):
         create_shorcut_button = QPushButton("Create shortcut", self)
         create_shorcut_button.clicked.connect(self.generator_shorcut)
         exit_button = QPushButton("Exit", self)
-        exit_button.clicked.connect(self.exit)
+        exit_button.clicked.connect(exit)
 
         layout.addStretch()
         layout.addWidget(self.open_button)
@@ -68,8 +71,7 @@ class Server(QWidget):
     def run_server(self):
         global isConnected
         if(isConnected == False):
-            thread_run = Thread(target=onRun)
-            thread_run.start()
+            onRun()
             self.open_button.setText('Stop')
             self.hide()
         else:
@@ -85,8 +87,12 @@ class Server(QWidget):
             os.path.abspath('icon.ico') # Icon path
         )
         pass
-    def exit(self):
-        sys.exit()
+
+def exit():
+    global isConnected
+    isConnected = ms.close()
+    Thread
+    sys.exit()
 
 def get_startup_path():
     startupPath = winshell.startup()
@@ -99,23 +105,27 @@ def create_shortcut(path,runner,argument,wDir,icon):
     shortcut.WorkingDirectory = r''+wDir
     shortcut.IconLocation = r''+icon
     shortcut.save()
-
 def connect_mail_service():
     while True:
         try:
-            ms.login()
+            ms.login(USERNAME,PASSWORD)
             return 1
         except:
             pass
+def scan_maill():
+    while isConnected:
+        print('SCANNING...')
+        mails_request = ms.read_mail()
+        print(mails_request)
+        time.sleep(8)
 def onRun():
     global isConnected
     isConnected = connect_mail_service()
-    print(isConnected)
-    if(isConnected):
-        mail_requests = ms.read_mail()
-        print(mail_requests)
+    Thread(target=scan_maill).start()
+
 def onStop():
-    ms.close()
+    global isConnected
+    isConnected = ms.close()
     pass
 def main():
     global ms
@@ -132,10 +142,13 @@ def main():
     openAction = menu.addAction('Open')
     openAction.triggered.connect(ex.showApp)
     exitAction = menu.addAction('Exit')
-    exitAction.triggered.connect(app.quit)
+    exitAction.triggered.connect(exit)
     # Tạo tray icon
     trayIcon.setContextMenu(menu)
 
+    #Lấy whitelist
+    rh = RequestHandle()
+    print(rh.parse_request({'sender':'hoaikhaqn1996@gmail.com','subject':'[G8RC] SYSTEM shutdown'}))
     # Lấy địa chỉ Mac
     # mac = Mac()
     # print(HTML_Generator.html_mail("Lấy địa chỉ Mac",mac.get_mac()['html']))

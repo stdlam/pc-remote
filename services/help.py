@@ -81,3 +81,5 @@ class Help:
             'html': html,
             'data': None
         }
+    def get_commands():
+        return commands
