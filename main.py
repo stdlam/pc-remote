@@ -1,4 +1,5 @@
 import sys, os.path, winshell, win32com.client, ctypes, time
+from services.pc import PC
 from threading import Thread
 
 from services.maill_service import MailService
@@ -185,6 +186,13 @@ def main():
     # pro_id = 17456
     # HTML_RESPONSE = HTML_Generator.html_mail("Đóng tiến trình có ID "+str(pro_id),process.close_process(pro_id)['html'])
 
+    # Shutdown
+    # pc = PC()
+    # print(HTML_Generator.html_mail("Shutting down ", pc.shutdown()['html']))
+
+    # Restart
+    # pc = PC()
+    # print(HTML_Generator.html_mail("Restarting ", pc.restart()['html']))
 
     # if(HTML_RESPONSE): print(HTML_RESPONSE)
 
