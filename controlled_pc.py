@@ -30,7 +30,15 @@ class WhiteList(tk.Tk):
 
         top.title("White List")
 
-        top.geometry("400x500")  
+        top.geometry("400x500")
+        top.configure(
+            bg = "#3F6BAA",
+            height = 500,
+            width = 400,
+            bd = 0,
+            highlightthickness = 0,
+            relief = "ridge"
+        )
   
         lbl = tk.Label(top, text = "A list of email")  
   
@@ -188,7 +196,7 @@ class EmailDetail(tk.Tk):
 window = tk.Tk()
 window.title("Controled PC")
 
-window.geometry("1000x600")
+window.geometry("400x500")  
 window.configure(bg = "#FFFFFF")
 window.resizable(False, False)
 
@@ -252,7 +260,7 @@ def on_autostart_checked():
 ui.btn_exit.config(command=lambda: on_exit_clicked())
 ui.btn_run.config(command=lambda: on_run_clicked())
 ui.btn_whitelist.config(command=lambda: on_whitelist_click())
-ui.btn_stop.config(command=lambda: on_whitelist_click())
+ui.btn_stop.config(command=lambda: on_stop_click())
 ui.ckb_autostart.config(command=lambda: on_autostart_checked(), variable=chk_var)
 
 
