@@ -1,4 +1,4 @@
-from tkinter import  Canvas, Button, PhotoImage
+from tkinter import  Canvas, Button, Checkbutton, PhotoImage
 
 
 import os
@@ -19,59 +19,55 @@ class Main_UI(Canvas):
         Canvas.__init__(self, parent)
         self.configure(
             #window,
-            bg = "#FFFFFF",
-            height = 600,
-            width = 1000,
+            bg = "#3F6BAA",
+            height = 500,
+            width = 400,
             bd = 0,
             highlightthickness = 0,
             relief = "ridge"
         )
         self.place(x = 0, y = 0)
-        self.image_image_1 = PhotoImage(
-            file=abs_path("image_1.png"))
-        self.image_1 = self.create_image(
-            500.0,
-            300.0,
-            image=self.image_image_1
-        )
         
-        self.image_image_2 = PhotoImage(
-            file=abs_path("image_2.png"))
-        self.image_2 = self.create_image(
-            466.0,
-            323.0,
-            image=self.image_image_2
-        )
-
         self.btn_run = Button(self,
             text='Run',
             borderwidth=0,
             highlightthickness=0,
-            command=lambda: print("Run clicked"),
-            relief="flat"
+            command=lambda: print("Run clicked")
         )
         self.btn_run.place(
             #x=727.0,
             #y=72.0,
-            x=727.0,
-            y=20.0,
-            width=120.0,
-            height=120.0
+            rely=0.1, relx=0.40
         )
+        self.ckb_autostart = Checkbutton(self, text='Auto Run', onvalue=1, offvalue=0)
+        self.ckb_autostart.place(rely=0.1, relx=0.55)
         
         self.btn_exit = Button(self,
             text='Exit',
+            command=lambda: print("Exit clicked"),
             borderwidth=0,
             highlightthickness=0,
-            command=lambda: print("Exit clicked"),
             relief="flat"
         )
-        self.btn_exit.place(
-            #x=552.0,
-            #y=251.0,
-            x=552.0,
-            y=20.0,
-            width=120.0,
-            height=120.0
+        self.btn_exit.place(rely=0.4, relx=0.4)
+
+        self.btn_whitelist = Button(self,
+            text='White List',
+            borderwidth=0,
+            highlightthickness=0,
+            command=lambda: print("White List clicked"),
+            relief="flat"
         )
+        self.btn_whitelist.place(rely=0.3, relx=0.36)
+
+        self.btn_stop = Button(self,
+            text='Stop',
+            borderwidth=0,
+            highlightthickness=0,
+            command=lambda: print("Stop clicked"),
+            relief="flat"
+        )
+        self.btn_stop.place(rely=0.2, relx=0.4)
+
+        
 
