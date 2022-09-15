@@ -72,7 +72,7 @@ class HTML_Generator:
 
         html = recurse_html(dir_struct)
         return html
-    def html_mail(request,content):
+    def html_mail(request = "",content = ""):
         html = "<div>"
         html += "<h2>"+request+"</h2>"
         html += "<div>"+content+"</div>"
