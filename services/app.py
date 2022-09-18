@@ -37,8 +37,8 @@ class AppRunning:
         except:
             return 0
 
-    def close_app(self,id):
-        status = self.__closing(id)
+    def close_app(self,params):
+        status = self.__closing(params[0])
         msg = ""
         if(status):
             msg = "Đóng ứng dụng thành công"

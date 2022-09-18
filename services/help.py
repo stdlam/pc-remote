@@ -13,11 +13,11 @@ commands = [
         ['Lấy danh sách process','Đóng process với ID']
     ],
     ['SCREEN',
-        ['SCREEN get screenshot','SCREEN get record <seconds>'],
+        ['SCREEN getscreenshot','SCREEN getrecord <seconds>'],
         ['Chụp màn hình','Quay phim màn hình trong khoảng thời gian']
     ],
     ['KEYLOGGER',
-        ['KEYLOGGER get keypress <seconds>'],
+        ['KEYLOGGER getkeypress <seconds>'],
         ['Lấy danh sách ký tự phím đã gõ trong 1 khoảng thời gian']
     ],
     ['REGISTRY',[

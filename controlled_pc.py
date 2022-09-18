@@ -13,23 +13,12 @@ def get_whitelist():
     try:
         with open("whitelist.txt", "r") as credentials:
             for line in credentials:
+
                 mail = line.split(",")
                 emails.append(mail[0])
-            credentials.close()
             return emails
     except FileNotFoundError:
         return []
-
-def get_email_type(email):
-    try:
-        with open("whitelist.txt", "r") as credentials:
-            for line in credentials:
-                info = line.split(",")
-                if info[0] == email:
-                    return info[1]
-        credentials.close()
-    except FileNotFoundError:
-        return "0"
 
 class WhiteList(tk.Tk):
     
@@ -67,7 +56,6 @@ class WhiteList(tk.Tk):
                         listbox.insert(index, mail[0])
                         
                         index += 1
-                credentials.close()
                 return
             except FileNotFoundError:
                 return
@@ -77,9 +65,9 @@ class WhiteList(tk.Tk):
         #this button will delete the selected item from the list   
   
         btn_add = tk.Button(top, text = "add")
-        btn_add.config(command=lambda: EmailDetail("", "0"))
+        btn_add.config(command=lambda: EmailDetail(""))
         btn_edit = tk.Button(top, text = "edit")
-        btn_edit.config(command=lambda: EmailDetail(listbox.get(listbox.curselection()[0]), get_email_type(listbox.get(listbox.curselection()[0]))))
+        btn_edit.config(command=lambda: EmailDetail(listbox.get(listbox.curselection()[0])))
         btn_delete = tk.Button(top, text = "delete")
         btn_delete.config(command=lambda: delete(listbox.get(listbox.curselection()[0])))
         btn_reload = tk.Button(top, text = "reload")
@@ -90,14 +78,14 @@ class WhiteList(tk.Tk):
                 credentials = open("whitelist.txt", "r")
                 old_list = []
                 for line in credentials:
-                    old_list.append(line)
+                    mail = line.split(",")[0]
+                    old_list.append(mail)
                 credentials.close()
 
                 writer = open("whitelist.txt", "w")
                 for item in old_list:
-                    email = item.split(",")[0]
-                    if email != selected_email:
-                        writer.write(f"{item}")
+                    if item != selected_email:
+                        writer.write(f"{item},\n")
                 writer.close()
                 listbox.delete(tk.ANCHOR)
                 return
@@ -110,14 +98,14 @@ class WhiteList(tk.Tk):
         btn_add.pack() 
         btn_edit.pack()
         btn_reload.pack()
-        #top.mainloop()  
+        top.mainloop()  
 
 
 class EmailDetail(tk.Tk):
 
-    def __init__(self, email, advance):
+    def __init__(self, email):
 
-        tk.Tk.__init__(self, email, advance)
+        tk.Tk.__init__(self, email)
 
         main_frame = tk.Frame(self, bg="#3F6BAA", height=150, width=250)
         # pack_propagate prevents the window resizing to match the widgets
@@ -126,8 +114,6 @@ class EmailDetail(tk.Tk):
 
         self.geometry("250x150")
         self.resizable(0, 0)
-
-        num_advance = int(advance)
 
         isAdd = len(email) == 0
         if isAdd == True:
@@ -139,7 +125,6 @@ class EmailDetail(tk.Tk):
                        "background": "#3F6BAA",
                        "foreground": "#E1FFFF"}
 
-        self.chkbtn_var = num_advance
         email_var = tk.StringVar()
         label_user = tk.Label(main_frame, text_styles, text="Email:")
         label_user.grid(row=1, column=0)
@@ -151,29 +136,16 @@ class EmailDetail(tk.Tk):
         button = ttk.Button(main_frame, text="Save", command=lambda: save())
         button.grid(row=4, column=1)
 
-        chk_type = tk.Checkbutton(main_frame, text='Advance', onvalue=1, offvalue=0, command=lambda : update_curr_chk())
-        chk_type.grid(row=2, column=1)
-
-        def update_curr_chk():
-            if self.chkbtn_var == 0:
-                self.chkbtn_var = 1
-            else:
-                self.chkbtn_var = 0
-
-        if num_advance == 1:
-            chk_type.select()
-    
         def save():
             # Creates a text file with the Username and password
             curemail = entry_user.get()
-            print("curemail=" + str(curemail) + ", email=" + str(email) + ", num_advance=" + str(num_advance) + ", chk_var.get()=" + str(self.chkbtn_var))
-            if (curemail == email) & (num_advance == self.chkbtn_var): 
+            if curemail == email: 
                 EmailDetail.destroy(self)
                 return
             
-            validation = (num_advance != self.chkbtn_var) | validate_user(curemail)
+            validation = validate_user(curemail)
             if not validation:
-                messagebox.showerror("Information", "This email already exists or nothing to update")
+                messagebox.showerror("Information", "This email already exists")
             else:
                 if len(curemail) > 0:
                     if isAdd:
@@ -181,23 +153,23 @@ class EmailDetail(tk.Tk):
                             messagebox.showinfo("Information", "This email was existed.")
                         else:
                             credentials = open("whitelist.txt", "a")
-                            credentials.write(f"{curemail},{str(self.chkbtn_var)}\n")
+                            credentials.write(f"{curemail},\n")
                             credentials.close()
                     else:
                         try:
                             credentials = open("whitelist.txt", "r")
                             old_list = []
                             for line in credentials:
-                                old_list.append(line)
+                                line = line.split(",")
+                                old_list.append(line[0])
                             credentials.close()
                             
                             writer = open("whitelist.txt", "w")
                             for item in old_list:
-                                item_mail = item.split(",")[0]
-                                if item_mail == email:
-                                    writer.write(f"{curemail},{str(self.chkbtn_var)}")
+                                if item == email:
+                                    writer.write(f"{curemail},\n")
                                 else:
-                                    writer.write(f"{item}")
+                                    writer.write(f"{item},\n")
                             writer.close()
                             
                         except FileNotFoundError:
@@ -209,14 +181,13 @@ class EmailDetail(tk.Tk):
                     messagebox.showerror("Information", "Email must not empty!")
 
         def validate_user(email):
-            # Checks if email existed
+            # Checks the text file for a username/password combination.
             try:
                 with open("whitelist.txt", "r") as credentials:
                     for line in credentials:
                         line = line.split(",")
                         if line[0] == email:
                             return False
-                credentials.close()
                 return True
             except FileNotFoundError:
                 return True

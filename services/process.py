@@ -20,9 +20,9 @@ class Process:
             'data': None
         }
 
-    def __closing(self,id):
+    def __closing(self,params):
         try:
-            p = psutil.Process(id)
+            p = psutil.Process(params[0])
             p.kill()
             return 1
         except:

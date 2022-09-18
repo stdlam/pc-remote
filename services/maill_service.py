@@ -27,7 +27,7 @@ class MailService:
         mail.select(box)
         print("Receing mail...")
         # status,data = mail.search(None, '(SUBJECT "[G8RC]")') // Không lọc được 
-        status,data = mail.search(None, 'ALL')
+        status,data = mail.search(None, 'UNSEEN')
         print(data)
         mail_ids= []
         for block in data:
@@ -44,13 +44,14 @@ class MailService:
                         mails_request.append({'sender':mail_from,'subject':mail_subject})
         print("Receing mail: Completed!")
         return mails_request
-    def send_mail(self,mail):
+    def send_mail(self,from_mail,to_mail,mail):
         smtp = self.smtp
+        smtp.connect(SERVER_SMTP,587)
         smtp.ehlo()
         smtp.starttls()
+        smtp.ehlo()
         smtp.login(self.username, self.password)
-        smtp.sendmail(mail)
-        smtp.quit()
+        smtp.sendmail(from_mail,to_mail,mail.as_string())
     def close(self):
         mail = self.imap
         try:
@@ -61,4 +62,3 @@ class MailService:
             print("Disconnect mail service: Failure!\n")
             print(e) 
             return 0
-
